@@ -35,10 +35,7 @@ jobs:
           prerelease: false
           
       - name: Zip Release
-        uses: TheDoctor0/zip-release@v0.3.0
-        with:
-          filename: Release.zip
-          directory: ./bin/Release/netcoreapp3.1/publish
+        run: Compress-Archive -Path .\Bin\Release\netcoreapp3.1\publish\* -DestinationPath .\Release.zip
           
       - name: Upload a Release Asset
         uses: actions/upload-release-asset@v1.0.2
