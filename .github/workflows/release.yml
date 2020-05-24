@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: windows
+    steps:
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v1.4.0
+        with:
+          dotnet-version: 3.1.300
+
+      - uses: actions/checkout@v2
+
+      - name: Restore dependencies
+        run: dotnet restore
+        
+      - name: Build
+        run: dotnet publish -c Release
+
+      - name: Create a Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Trunk ${{ github.run_number }}
+          draft: false
+          prerelease: false
+          
+      - name: Zip Release
+        uses: TheDoctor0/zip-release@v0.3.0
+        with:
+          filename: Release.zip
+          directory: ./bin/Release/netcoreapp3.1/publish
+          
+      - name: Upload a Release Asset
+        uses: actions/upload-release-asset@v1.0.2
+        with:
+          upload_urL: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: Release.zip
+          asset_name: Release.zip
+          asset_content_type: application/zip
