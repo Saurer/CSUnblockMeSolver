@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   build:
@@ -19,9 +19,12 @@ jobs:
 
       - name: Restore dependencies
         run: dotnet restore
-        
+
       - name: Build
         run: dotnet publish -c Release
+
+      - name: Zip Release
+        run: Compress-Archive -Path .\Bin\Release\netcoreapp3.1\publish\* -DestinationPath .\Release.zip
 
       - name: Create a Release
         id: create_release
@@ -29,14 +32,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: Trunk ${{ github.run_number }}
+          tag_name: build_${{ github.run_number }}
           release_name: Trunk ${{ github.run_number }}
           draft: false
           prerelease: false
-          
-      - name: Zip Release
-        run: Compress-Archive -Path .\Bin\Release\netcoreapp3.1\publish\* -DestinationPath .\Release.zip
-          
+
       - name: Upload a Release Asset
         uses: actions/upload-release-asset@v1.0.2
         with:
